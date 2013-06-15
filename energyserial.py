@@ -1,33 +1,50 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import serial
 import time
-ser = serial.Serial('/dev/ttyACM0', 9600, timeout=10)
+
 
 redOld    = 0
 greenOld  = 0
 blueOld   = 0
 bubbleOld = 0
 
+class Yoda(object):
+    """
+    A class to encapsulate the
+    """
+    def __init__(self, serial_port='/dev/ttyACM0'):
+        self.red = 0
+        self.green = 0
+        self.blue = 0
+        self.bubble = 0
 
-def rgb(red, green, blue):
-    redOld = red
-    greenOld = green
-    blueOld = blue
-    sendCommand()
+        self.ser = serial.Serial(serial_port, 9600, timeout=1)
+        print "opening %s" % self.ser.portstr
+        self.ser.read()
 
-def bubble(bubble):
-    bubbleOld = bubble
-    sendCommand()
+    def __del__(self):
+        self.ser.close()
 
-def sendCommand():
-    print "Sertest"
-    ser.write("%d,%d,%d,%d\n" % (redOld,greenOld,blueOld,bubbleOld))
+    def set_rgb(self, red, green, blue):
+        self.red = red
+        self.green = green
+        self.blue = blue
+        self._sendCommand()
+
+    def set_bubble(self, bubble):
+        self.bubble = bubble
+        self._sendCommand()
+
+    def _sendCommand(self):
+        values = (255 - self.red, 255 - self.green, 255 - self.blue, self.bubble)
+        command = "%d,%d,%d,%d\n" % values
+        print 'sending', command
+        self.ser.write(command)
+        time.sleep(1)
 
 if __name__ == '__main__':
-    print "Opening Port"
-    ser.read()
-    print "Port Open"
-    bubble(100)
-    rgb(100,200,250)
+    yoda = Yoda(serial_port='/dev/tty.usbmodem621')
+    yoda.set_bubble(100)
+    yoda.set_rgb(100,200,250)
