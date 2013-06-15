@@ -3,27 +3,31 @@
 
 import serial
 import time
+ser = serial.Serial('/dev/ttyACM0', 9600, timeout=10)
+
 redOld    = 0
 greenOld  = 0
 blueOld   = 0
 bubbleOld = 0
 
 
-def rgb(reg, green, blue):
-    print "Red",reg
-    print "Green",green
-    print "Blue",blue
+def rgb(red, green, blue):
+    redOld = red
+    greenOld = green
+    blueOld = blue
+    sendCommand()
 
-def bubble(value):
-    print "Hallo"
+def bubble(bubble):
+    bubbleOld = bubble
+    sendCommand()
 
 def sendCommand():
     print "Sertest"
-    ser = serial.Serial('/dev/ttyACM0', 9600, timeout=10)
-    ser.read()
-    ser.write("0,0,0,255\n")
+    ser.write("%d,%d,%d,%d\n" % (redOld,greenOld,blueOld,bubbleOld))
 
 if __name__ == '__main__':
-    bubble(2)
-    rgb(10,20,30)
-    sendCommand()
+    print "Opening Port"
+    ser.read()
+    print "Port Open"
+    bubble(100)
+    rgb(100,200,250)
